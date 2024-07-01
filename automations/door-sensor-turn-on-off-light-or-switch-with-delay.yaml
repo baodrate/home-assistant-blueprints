@@ -1,7 +1,7 @@
 blueprint:
   name: Door Sensor-activated Light/Switch With Delay
   description: >
-    Version: 1.1
+    Version: 1.2
 
     Turn on/off a light or a switch when door is opened/closed and off after the door has been opened for a while.
 
@@ -25,9 +25,20 @@ blueprint:
               - light
               - switch
     door_opened_wait:
-      name: Wait time
-      description: Time to leave the light/switch on after door is opened
+      name: Door open timeout
+      description: Time to leave the light/switch on before auto-shutoff
       default: 120
+      selector:
+        number:
+          min: 0.0
+          max: 3600.0
+          unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+    door_closed_wait:
+      name: Door close delay
+      description: Delay after door closes before turning off the light/switch
+      default: 0
       selector:
         number:
           min: 0.0
@@ -50,6 +61,7 @@ action:
         entity_id: !input door_sensor_entity
         from: "on"
         to: "off"
+        for: !input door_closed_wait
     timeout: !input door_opened_wait
   - service: homeassistant.turn_off
     target: !input light_or_switch_target
